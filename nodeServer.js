@@ -1,37 +1,102 @@
 var http = require('http');
-var url = require('url');
+var urlparse = require('url');
 var students = require('./data.js');
 
-
-//create server
 var server = http.createServer(function (req, res) {
-  res.end('Test Node Server\n');
-  
 
-  //
-  console.log(req.method);
+	var url = urlparse.parse(req.url, true);
+	
+	//the full path
+	var urlpathname = url.pathname;
+	var argArray = urlpathname.split("/");
 
-  //
-  urlParse = url.parse(req.url, true);
+	//route hard code
+	var studentsPath = argArray[1];
+	var idPath = argArray[2];
+	var otherPath = argArray[3];
 
-	console.log(urlParse);
+	switch(req.method) {
 
+		
+		case "GET": 
+			
+			if (studentsPath == "students" && idPath != "") {
 
+				if (otherPath == "" || otherPath == undefined) {
+					res.end ("GET/students/id ");
+					return;
+				}	
+			}
 
+			if (studentsPath == "students") {
+				
+				if (idPath == "" || idPath == undefined) {
+					res.write( JSON.stringify(students.getAll()));
+					res.end();
+					return;
+				}	
 
+			}
+			
+			if (studentsPath == "") {
+				res.end("Node sever is running");
+				return;
+			}
+			
+			res.write( JSON.stringify(students.error()));
+			res.end();
+			return;
+			
+			break;
+		
+
+		
+		case "POST": 
+			
+			if (studentsPath == "students") {
+				
+				if (idPath == "" || idPath == undefined) {
+					res.end ("POST/ works");
+					return;
+				}	
+			}
+			res.write( JSON.stringify(students.error()));
+			res.end();
+			return;
+
+			break;
+
+		
+		
+		case "PUT": 
+
+			if (studentsPath == "students" || idPath != "") {
+					
+					res.end ("PUT/ works");
+					return;
+					
+			}
+			res.write( JSON.stringify(students.error()));
+			res.end();
+			return;
+
+			break;
+		
+		case "DELETE":
+
+				if (studentsPath == "students" || idPath != "") {
+				
+					res.end ("DELETE/ works");
+					return;	
+			}
+			res.write( JSON.stringify(students.error()));
+			res.end();
+			return;
+
+			break;
+
+			
+	}
 
 }).listen(8080, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:8080/');
-
-
-//find out method
-
-
-
-
-
-
-
-	
-
-
