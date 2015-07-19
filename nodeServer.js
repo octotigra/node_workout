@@ -71,7 +71,7 @@ var server = http.createServer(function (req, res) {
 		
 		case "POST": 
 
-		req.on('end', function(chunk){
+		req.on('end', function(){
 			//remove wierd "undefined"
 			var requestStr = body.replace("undefined", "");
 			var request = JSON.parse(requestStr);
@@ -90,13 +90,12 @@ var server = http.createServer(function (req, res) {
 					}
 
 					students.add(student, grade);
-		//			res.end(JSON.stringify(students.success()));
-					res.end( JSON.stringify(students.getAll()));
+					res.end(JSON.stringify(students.success()));
 					return;
 
 				}	
 			}
-			res.write( JSON.stringify(students.error()));
+			res.write( JSON.stringify(students.error()) );
 			res.end();
 			return;
 		})
@@ -105,22 +104,38 @@ var server = http.createServer(function (req, res) {
 
 
 		
-		case "PUT": 
+		case "PUT":
+		
+		req.on('end', function(){
+			var requestStr = body.replace("undefined", "");
+			var request = JSON.parse(requestStr);
 
-		if (studentsPath == "students" && idPath != "" &&  idPath != undefined) {
+			if (studentsPath == "students" && idPath != "" &&  idPath != undefined) {
 
-			if (otherPath == "" || otherPath == undefined) {
-				res.end ("PUT/ works");
-				return;
-			}	
+				if (otherPath == "" || otherPath == undefined) {
+				
+					var id = idPath;
+					var student = request.name;
+					var grade = request.totalGrade; 
+ 	
+ 					if (id == undefined ||student == undefined || grade == undefined) {
+						res.send(students.error());
+					}
 
-		}
+					students.update(id, student, grade);
+					res.write( JSON.stringify(students.success()) );
+					res.end()
+					return;
+				}	
+
+			}
 		res.write( JSON.stringify(students.error()));
 		res.end();
 		return;
-
-		break;
+		})
 		
+		break;
+			
 		
 
 		case "DELETE":
@@ -128,7 +143,10 @@ var server = http.createServer(function (req, res) {
 		if (studentsPath == "students" && idPath != "" &&  idPath != undefined) {
 
 			if (otherPath == "" || otherPath == undefined) {
-				res.end ("DELETE/ works");
+				students.remove(idPath);
+				res.write( JSON.stringify(students.success()) );
+				res.write( JSON.stringify(students.getAll()) );
+				res.end();
 				return;
 			}	
 
